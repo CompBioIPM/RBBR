@@ -1,0 +1,5 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^dev$
+^README\.md$
+^README\.Rmd$
