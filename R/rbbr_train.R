@@ -1,29 +1,34 @@
-#' @title This function trains RBBR as a supervised artificial intelligence model to learn Boolean rules.
+#' @title Trains RBBR to learn Boolean rules
 #'
-#' @description Regression-Based Boolean Rule (RBBR) inference is performed on datasets where the target feature is either binarized or continuous within the [0,1] range.
+#' @description Regression-Based Boolean Rule (RBBR) inference is performed on datasets where the input and target features are either binarized or continuous within the [0,1] range.
 #'
 #' @param data The dataset with scaled features within the [0,1] interval. Each row represents a sample and each column represents a feature. The target variable must be in the last column.
 #' @param max_feature The maximum number of input features allowed in a Boolean rule. The default value is 3.
 #' @param mode Choose between "1L" for fitting 1-layered models or "2L" for fitting 2-layered models. The default value is "1L".
 #' @param slope The slope parameter used in the Sigmoid activation function. The default value is 10.
 #' @param weight_threshold Conjunctions with weights above this threshold in the fitted ridge regression models will be printed as active conjunctions in the output. The default value is 0.
-#' @param balancing This is for adjusting the distribution of classes or categories within a dataset to ensure that each class is adequately represented. The default value is "True". Set it to "False", if you don't need to perform the data balancing.
-#' @param num_cores Specify the number of parallel workers (adjust according to your system)
+#' @param balancing Logical. This is for adjusting the distribution of target classes or categories within a dataset to ensure that each class is adequately represented. The default value is TRUE. Set it to FALSE, if you don't need to perform the data balancing.
+#' @param num_cores Number of parallel workers to use for computation. Adjust according to your system. Default is NA (automatic selection).
+#' @param verbose Logical. If TRUE, progress messages and a progress bar are shown. Default is FALSE.
 #'
 #' @return This function outputs the predicted Boolean rules with the best Bayesian Information Criterion (BIC).
 #' @examples
-#' \donttest{
 #' # Load dataset
 #' data(example_data)
 #'
-#' # Inspect loaded data
-#' head(XOR_data)
+#' # Example for training a two-layer model
+#' head(OR_data)
 #'
-#' data_train   <- XOR_data[1:800, ]
-#' data_test    <- XOR_data[801:1000, ]
+#' # For fast run, use the first three input features to predict target class in column five
+#' data_train   <- OR_data[1:800, c(1,2,3,5)]
+#' data_test    <- OR_data[801:1000, c(1,2,3,5)]
 #'
 #' # training model
-#' trained_model<- rbbr_train(data_train)
+#' trained_model <- rbbr_train(data_train,
+#'                            max_feature = 2,
+#'                            mode = "2L",
+#'                            balancing = FALSE,
+#'                            num_cores = 1, verbose = TRUE)
 #'
 #' head(trained_model$boolean_rules)
 #'
@@ -31,43 +36,31 @@
 #' data_test_x  <- data_test[ ,1:(ncol(data_test)-1)]
 #' labels       <- data_test[ ,ncol(data_test)]
 #'
-#' predicted_labels <- rbbr_predictor(trained_model, data_test_x, num_top_rules = 1, num_cores = NA)
-#' head(predicted_labels) # predicted labels
-#' head(labels) # true labels
+#' predicted_label_probabilities <- rbbr_predictor(trained_model,
+#'                                    data_test_x,
+#'                                    num_top_rules = 10,
+#'                                    num_cores = 1, verbose = TRUE)
 #'
-#' }
+#' head(predicted_label_probabilities)
+#'
 #' @export
 #' @importFrom foreach foreach %dopar%
 #' @importFrom doParallel registerDoParallel
 #' @importFrom parallel makeCluster stopCluster detectCores
 #' @importFrom stats cor predict quantile sd var
 #' @importFrom utils combn txtProgressBar
-rbbr_train <- function(data, max_feature = NA, mode = NA, slope = NA, weight_threshold = NA, balancing = NA, num_cores = NA){
-
-  if(is.na(max_feature)){
-    max_feature <- 3
-  }
-  if(is.na(mode)){
-    mode  <- "1L"
-  }
-  if(is.na(slope)){
-    slope <- 10
-  }
-  if(is.na(weight_threshold)){
-    weight_threshold  <- 0
-  }
-  if(is.na(balancing)){
-    balancing <- "True"
-  }
+rbbr_train <- function(data, max_feature = 3, mode = "1L", slope = 10, weight_threshold = 0, balancing = TRUE, num_cores = NA, verbose = FALSE){
   if(is.na(num_cores)){
     num_cores <- parallel::detectCores()
   }
 
-  cat("training process started with ", num_cores," computing cores\n")
+  if (verbose) message("training process started with ", num_cores," computing cores")
 
   # Create a progress bar
   progress_percent <- 0
-  pb               <- txtProgressBar(min = 0, max = 100, style = 3, width = 20)
+  if (verbose) {
+    pb <- txtProgressBar(min = 0, max = 100, style = 3, width = 20)
+  }
   #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   sigmoid <- function(x) {
     1 / (1 + exp(-slope*(x-0.5)) )
@@ -128,10 +121,6 @@ rbbr_train <- function(data, max_feature = NA, mode = NA, slope = NA, weight_thr
     percentage_0 <- count_0 / length(response) * 100
     percentage_1 <- count_1 / length(response) * 100
 
-    # Display percentages
-    #cat(sprintf("Percentage of 0s: %.2f%%\n", percentage_0))
-    #cat(sprintf("Percentage of 1s: %.2f%%\n", percentage_1))
-
     additional_samples <- abs(count_1-count_0)
     if (count_1 < count_0) {
       # Sampling from the class with fewer records (0s)
@@ -153,7 +142,7 @@ rbbr_train <- function(data, max_feature = NA, mode = NA, slope = NA, weight_thr
     return(sampled_data)
   }
   ################################################################################ Fit single complex
-  if( (all(data[  ,ncol(data)] %in% c(0, 1))) & (balancing == "True")){
+  if( (all(data[  ,ncol(data)] %in% c(0, 1))) & balancing ){
     data         <- balancing_data(data)
   }
 
@@ -180,7 +169,7 @@ rbbr_train <- function(data, max_feature = NA, mode = NA, slope = NA, weight_thr
   # print(total_iterations)
 
   # Set up parallel backend
-  cl             <- parallel::makeCluster(num_cores)
+  cl <- parallel::makeCluster(num_cores)
   doParallel::registerDoParallel(cl)
 
   current_it     <- 0
@@ -211,10 +200,9 @@ rbbr_train <- function(data, max_feature = NA, mode = NA, slope = NA, weight_thr
            AGRE_OUT_pred = t(y_predicted),
            R2            = rsq_adj)
     }
-    # cat(round(100*current_it/total_iterations,2), "% progress\n")
-    # print(current_it)
+
     progress_percent <- round(100*current_it/total_iterations,2)
-    utils::setTxtProgressBar(pb, progress_percent)
+    if (verbose) utils::setTxtProgressBar(pb, progress_percent)
 
     LOGIC_VALUES[[as.character(k)]] <- results
   }
@@ -293,7 +281,7 @@ rbbr_train <- function(data, max_feature = NA, mode = NA, slope = NA, weight_thr
             results_list[[i]] <- results
           } # end for i
           progress_percent <- round(100*current_it/total_iterations,2)
-          utils::setTxtProgressBar(pb, progress_percent)
+          if (verbose) utils::setTxtProgressBar(pb, progress_percent)
 
           LOGIC_VALUES[[paste0(as.character(k1),".", as.character(k2))]] <- do.call(rbind, results_list)
           ######################################################################
@@ -513,7 +501,7 @@ rbbr_train <- function(data, max_feature = NA, mode = NA, slope = NA, weight_thr
   ##############################################################################
   parallel::stopCluster(cl)
   foreach::registerDoSEQ()
-  close(pb)
+  if (verbose) close(pb)
   return(trained_model)
 }
 

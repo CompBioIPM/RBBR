@@ -2,30 +2,64 @@
 % Please edit documentation in R/rbbr_predictor.R
 \name{rbbr_predictor}
 \alias{rbbr_predictor}
-\title{This function is designed to make predictions on a new dataset by utilizing a trained model.}
+\title{Predict Using a Trained RBBR Model}
 \usage{
 rbbr_predictor(
   trained_model,
   data_test,
-  num_top_rules = NA,
-  slope = NA,
-  num_cores = NA
+  num_top_rules = 1,
+  slope = 10,
+  num_cores = 1,
+  verbose = FALSE
 )
 }
 \arguments{
-\item{trained_model}{The model that has been trained using the rbbr_train() function on a training dataset.}
+\item{trained_model}{Model returned by `rbbr_train()`}
 
-\item{data_test}{The new dataset for which we want to predict the target value or label probability. Each sample is represented as a row, and the input features are in columns.}
+\item{data_test}{The new dataset for which we want to predict the target class or label probability. Each sample is represented as a row, and features are in columns.}
 
-\item{num_top_rules}{Specifies the number of Boolean rules with the best Bayesian Information Criterion (BIC) scores to be used for prediction. The default value is 1.}
+\item{num_top_rules}{Number of Boolean rules with the best Bayesian Information Criterion (BIC) scores to be used for prediction. The default value is 1.}
 
-\item{slope}{The slope parameter used in the Sigmoid activation function. The default value is 10.}
+\item{slope}{The slope parameter for the sigmoid activation function. Default is 10.}
 
-\item{num_cores}{Specify the number of parallel workers (adjust according to your system).}
+\item{num_cores}{Number of parallel workers to use for computation. Adjust according to your system. Default is NA (automatic selection).}
+
+\item{verbose}{Logical. If TRUE, progress messages are shown. Default is FALSE.}
 }
 \value{
-This function returns the predicted target value or label probability for the input dataset. For each sample in the input dataset (represented as rows), rbbr_predictor() provides the corresponding predicted value or label probability.
+Numeric vector of predicted probabilities (length = nrow(data_test))
 }
 \description{
-This function is designed to make predictions on a new dataset by utilizing a trained model.
+Make predictions for new datapoints by utilizing a trained RBBR model.
+}
+\examples{
+# Load dataset
+data(example_data)
+
+# Inspect loaded data
+head(XOR_data)
+
+# For fast run, use the first three input features to predict target class in column 11
+data_train <- XOR_data[1:800, c(1,2,3,11)]
+data_test <- XOR_data[801:1000, c(1,2,3,11)]
+
+# training model
+trained_model <- rbbr_train(data_train,
+                            max_feature = 2,
+                            num_cores = 1, verbose = TRUE)
+
+head(trained_model$boolean_rules)
+
+# testing model
+data_test_x <- data_test[ ,1:(ncol(data_test)-1)]
+labels <- data_test[ ,ncol(data_test)]
+
+predicted_label_probabilities <- rbbr_predictor(trained_model,
+                                   data_test_x,
+                                   num_top_rules = 1,
+                                   num_cores = 1, verbose = TRUE)
+
+head(predicted_label_probabilities)
+head(labels) # true labels
+
 }

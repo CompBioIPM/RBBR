@@ -2,16 +2,17 @@
 % Please edit documentation in R/rbbr_train.R
 \name{rbbr_train}
 \alias{rbbr_train}
-\title{This function trains RBBR as a supervised artificial intelligence model to learn Boolean rules.}
+\title{Trains RBBR to learn Boolean rules}
 \usage{
 rbbr_train(
   data,
-  max_feature = NA,
-  mode = NA,
-  slope = NA,
-  weight_threshold = NA,
-  balancing = NA,
-  num_cores = NA
+  max_feature = 3,
+  mode = "1L",
+  slope = 10,
+  weight_threshold = 0,
+  balancing = TRUE,
+  num_cores = NA,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -25,29 +26,35 @@ rbbr_train(
 
 \item{weight_threshold}{Conjunctions with weights above this threshold in the fitted ridge regression models will be printed as active conjunctions in the output. The default value is 0.}
 
-\item{balancing}{This is for adjusting the distribution of classes or categories within a dataset to ensure that each class is adequately represented. The default value is "True". Set it to "False", if you don't need to perform the data balancing.}
+\item{balancing}{Logical. This is for adjusting the distribution of target classes or categories within a dataset to ensure that each class is adequately represented. The default value is TRUE. Set it to FALSE, if you don't need to perform the data balancing.}
 
-\item{num_cores}{Specify the number of parallel workers (adjust according to your system)}
+\item{num_cores}{Number of parallel workers to use for computation. Adjust according to your system. Default is NA (automatic selection).}
+
+\item{verbose}{Logical. If TRUE, progress messages and a progress bar are shown. Default is FALSE.}
 }
 \value{
 This function outputs the predicted Boolean rules with the best Bayesian Information Criterion (BIC).
 }
 \description{
-Regression-Based Boolean Rule (RBBR) inference is performed on datasets where the target feature is either binarized or continuous within the [0,1] range.
+Regression-Based Boolean Rule (RBBR) inference is performed on datasets where the input and target features are either binarized or continuous within the [0,1] range.
 }
 \examples{
-\donttest{
 # Load dataset
 data(example_data)
 
-# Inspect loaded data
-head(XOR_data)
+# Example for training a two-layer model
+head(OR_data)
 
-data_train   <- XOR_data[1:800, ]
-data_test    <- XOR_data[801:1000, ]
+# For fast run, use the first three input features to predict target class in column five
+data_train   <- OR_data[1:800, c(1,2,3,5)]
+data_test    <- OR_data[801:1000, c(1,2,3,5)]
 
 # training model
-trained_model<- rbbr_train(data_train)
+trained_model <- rbbr_train(data_train,
+                           max_feature = 2,
+                           mode = "2L",
+                           balancing = FALSE,
+                           num_cores = 1, verbose = TRUE)
 
 head(trained_model$boolean_rules)
 
@@ -55,9 +62,11 @@ head(trained_model$boolean_rules)
 data_test_x  <- data_test[ ,1:(ncol(data_test)-1)]
 labels       <- data_test[ ,ncol(data_test)]
 
-predicted_labels <- rbbr_predictor(trained_model, data_test_x, num_top_rules = 1, num_cores = NA)
-head(predicted_labels) # predicted labels
-head(labels) # true labels
+predicted_label_probabilities <- rbbr_predictor(trained_model,
+                                   data_test_x,
+                                   num_top_rules = 10,
+                                   num_cores = 1, verbose = TRUE)
 
-}
+head(predicted_label_probabilities)
+
 }

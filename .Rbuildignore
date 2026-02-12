@@ -3,3 +3,5 @@
 ^dev$
 ^README\.md$
 ^README\.Rmd$
+^\.github$
+^cran-comments\.md$

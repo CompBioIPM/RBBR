@@ -1,14 +1,13 @@
 Type: Package
 Package: RBBR
-Title: Regression-Based Boolean Rule Inference for Artificial Intelligence
-    Studies.
+Title: Regression-Based Boolean Rule Inference
 Version: 0.1.0
-Authors@R:
+Authors@R: 
     person("Seyed Amir", "Malekpour", , "a.malekpour@ipm.ir", role = c("aut", "cre"))
-Description: RBBR is an R package for Regression-Based Boolean Rule
-    inference. The RBBR package supports parallel execution on multi-CPU
-    platforms, enhancing accessibility for real-world Boolean rule
-    inference applications.
+Description: Tools for regression-based Boolean rule inference in
+    artificial intelligence studies.  The package fits ridge regression
+    models on conjunction expansions and composes interpretable rule sets.
+    Parallel execution is supported for multi-CPU environments.
 License: GPL-3
 URL: https://github.com/CompBioIPM/RBBR
 Depends: 
@@ -26,4 +25,5 @@ Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
 LazyDataCompression: xz
+Language: en-US
 RoxygenNote: 7.3.3

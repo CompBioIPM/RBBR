@@ -1,10 +1,11 @@
-#' @title This function adjusts the scale of input features to fit within the range of [0,1].
+#' @title Scale features to [0,1] range
 #'
-#' @description This function adjusts the scale of input features to fit within the range of [0,1].
+#' @description Scales input features to the [0,1] interval using the 97.5th percentile of each feature.
+#' The last column (target) is not scaled.
 #'
-#' @param data The original dataset. Each row corresponds to a sample, and each column represents a feature. The target variable (binary label or continuous value) is expected to be in the last column.
+#' @param data A numeric dataset. Each row is a sample and each column a feature. The target variable is expected in the last column.
 #'
-#' @return The function returns the scaled features, ensuring they fall within the range of [0,1].
+#' @return A dataset with scaled features (all columns except the last), capped at 0.9999.
 #' @examples
 #' # Load dataset
 #' data(example_data)
@@ -12,18 +13,20 @@
 #' # Inspect loaded data
 #' head(MAGIC_data)
 #'
-#' data_scaled   <- rbbr_scaling(MAGIC_data)
+#' # Scale features
+#' data_scaled <- rbbr_scaling(MAGIC_data)
 #' head(data_scaled)
-#' @export
 #'
-#' @importFrom stats cor predict quantile sd var
+#' @export
+#' @importFrom stats quantile
 rbbr_scaling <- function(data){
   for(i in 1:(ncol(data)-1)){
-    data[ ,i]   <- ( data[ ,i] - min(data[ ,i]) )
-    q975        <- quantile(as.numeric(unlist(data[ ,i])), probs = 0.975 , na.rm = TRUE)
-    data[ ,i]   <- data[ ,i]/q975
-    data[ ,i]   <- replace(data[ ,i], data[ ,i]>=1, 0.9999)
+    if(!is.numeric(data[, i])) next
+    min_val <- min(data[, i], na.rm = TRUE)
+    data[, i] <- data[, i] - min_val
+    q975 <- quantile(data[, i], probs = 0.975, na.rm = TRUE)
+    data[, i] <- data[, i] / q975
+    data[, i] <- pmin(data[, i], 0.9999)
   }
   return(data)
 }
-

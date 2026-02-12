@@ -2,18 +2,19 @@
 % Please edit documentation in R/rbbr_scaling.R
 \name{rbbr_scaling}
 \alias{rbbr_scaling}
-\title{This function adjusts the scale of input features to fit within the range of [0,1].}
+\title{Scale features to [0,1] range}
 \usage{
 rbbr_scaling(data)
 }
 \arguments{
-\item{data}{The original dataset. Each row corresponds to a sample, and each column represents a feature. The target variable (binary label or continuous value) is expected to be in the last column.}
+\item{data}{A numeric dataset. Each row is a sample and each column a feature. The target variable is expected in the last column.}
 }
 \value{
-The function returns the scaled features, ensuring they fall within the range of [0,1].
+A dataset with scaled features (all columns except the last), capped at 0.9999.
 }
 \description{
-This function adjusts the scale of input features to fit within the range of [0,1].
+Scales input features to the [0,1] interval using the 97.5th percentile of each feature.
+The last column (target) is not scaled.
 }
 \examples{
 # Load dataset
@@ -22,6 +23,8 @@ data(example_data)
 # Inspect loaded data
 head(MAGIC_data)
 
-data_scaled   <- rbbr_scaling(MAGIC_data)
+# Scale features
+data_scaled <- rbbr_scaling(MAGIC_data)
 head(data_scaled)
+
 }
