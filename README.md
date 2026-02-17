@@ -4,9 +4,11 @@
 - The RBBR package supports parallel execution on multi-CPU platforms, enhancing accessibility for real-world Boolean rule inference applications.
 
 <br>
+
 Malekpour, S.A., Pezeshk, H., Explainable artificial intelligence with Boolean rule-aware predictions in ridge regression models, Neurocomputing, 132991 (2026).
 
 <br>
+
 ## RBBR installation from CRAN
    
 ```R
