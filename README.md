@@ -38,9 +38,7 @@ data_scaled <- rbbr_scaling(MAGIC_data)
 head(data_scaled)
 ```
 
-## Train RBBR and use it for prediction purpose on new dataset
-The RBBR package offers the rbbr_train() function for training the model on a dataset to extract Boolean rules, and the rbbr_predictor() function for utilizing the trained model to predict target values or labels on a new dataset.
-
+## Train RBBR 
 ### rbbr_train()
 For training the RBBR model on a dataset to extract Boolean rules, you can use the `rbbr_train()` function.
 
@@ -60,23 +58,23 @@ rbbr_train(
 
 
 # Required input arguments
-# data	            The dataset with scaled features within the [0,1] interval.
+# data	           The dataset with scaled features within the [0,1] interval.
 #                   Each row represents a sample and each column represents a feature. The target variable must be in the last column.
 #
 # Optional input arguments  
 # max_feature       The maximum number of input features allowed in a Boolean rule.
 #                   The default value is 3.
-# mode	            Choose between "1L" for fitting 1-layered models or "2L" for fitting 2-layered models.
+# mode	           Choose between "1L" for fitting 1-layered models or "2L" for fitting 2-layered models.
 #                   The default value is "1L".
-# slope	            The slope parameter used in the Sigmoid activation function.
+# slope	           The slope parameter used in the Sigmoid activation function.
 #                   The default value is 10.
-# weight_threshold	Conjunctions with weights above this threshold in the fitted ridge regression models will be printed as active conjunctions in the output.
+# weight_threshold  Conjunctions with weights above this threshold in the fitted ridge regression models will be printed as active conjunctions in the output.
 #                   The default value is 0.
 # balancing	        Logical. This is for adjusting the distribution of target classes or categories within a dataset to ensure that each class is adequately represented.
 #                   The default value is TRUE. Set it to FALSE, if you don't need to perform the data balancing.
 # num_cores	        Number of parallel workers to use for computation.
 #                   Adjust according to your system. Default is NA (automatic selection).
-# verbose	          Logical. If TRUE, progress messages and a progress bar are shown.
+# verbose	        Logical. If TRUE, progress messages and a progress bar are shown.
 #                   Default is FALSE.
 
 library(RBBR)
@@ -130,6 +128,7 @@ head(predicted_label_probabilities)
 [1] 0.005587339 0.110986479 0.826692566 0.036342787 0.731197972 0.011742257
 ```
 
+## Making predictions with RBBR on new dataset
 ### rbbr_predictor()
 For utilizing the trained model to predict target values or labels on a new dataset, you can use the `rbbr_predictor()` function. In datasets with binary (0/1) target features, the rbbr_predictor() function produces predicted probabilities for target labels. However, when dealing with a continuous target variable, the rbbr_predictor() output can be regarded as the predicted target value.
 
@@ -145,17 +144,17 @@ rbbr_predictor(
 )
 
 # Required input arguments
-# trained_model	    Model returned by 'rbbr_train()'
+# trained_model	  Model returned by 'rbbr_train()'
 # data_test	        The new dataset for which we want to predict the target class or label probability. Each sample is represented as a row, and features are in columns.
 #
 # Optional input arguments  
 # num_top_rules     Number of Boolean rules with the best Bayesian Information Criterion (BIC) scores to be used for prediction.
 #                   The default value is 1.
-# slope	            The slope parameter for the sigmoid activation function.
+# slope	           The slope parameter for the sigmoid activation function.
 #                   Default is 10.
 # num_cores	        Number of parallel workers to use for computation. Adjust according to your system.
 #                   Default is NA (automatic selection).
-# verbose	          Logical. If TRUE, progress messages are shown. Default is FALSE.
+# verbose	        Logical. If TRUE, progress messages are shown. Default is FALSE.
 
 library(RBBR)
 
