@@ -1,5 +1,4 @@
 # RBBR: Regression-Based Boolean Rule inference in artificial intelligence studies.
-- RBBR: **R**egression-**B**ased **B**oolean **R**ule inference 
 - This repository contains code and tutorials for executing RBBR.
 - The RBBR package supports parallel execution on multi-CPU platforms, enhancing accessibility for real-world Boolean rule inference applications.
 
