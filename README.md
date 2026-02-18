@@ -23,8 +23,9 @@ To preprocess raw data, including steps such as rescaling to bring each input fe
 rbbr_scaling(data)
 
 # Required input arguments
-data Each row is a sample and each column a feature. The target variable is expected in the last column.
+# data              Each row is a sample and each column a feature. The target variable is expected in the last column.
 
+############################# Example usage #############################
 # Load dataset
 data(example_data)
 
@@ -74,6 +75,7 @@ rbbr_train(
 # verbose	        Logical. If TRUE, progress messages and a progress bar are shown.
 #                   Default is FALSE.
 
+############################# Example usage #############################
 library(RBBR)
 
 # Load dataset
@@ -156,7 +158,7 @@ rbbr_predictor(
 # verbose	        Logical. If TRUE, progress messages are shown. Default is FALSE.
 
 
-### Example usage
+############################# Example usage #############################
 library(RBBR)
 
 # Load dataset
