@@ -25,6 +25,7 @@ rbbr_scaling(data)
 # Required input arguments
 # data              Each row is a sample and each column a feature. The target variable is expected in the last column.
 
+
 ############################# Example usage #############################
 # Load dataset
 data(example_data)
@@ -88,6 +89,7 @@ rbbr_train(
 #                   Adjust according to your system. Default is NA (automatic selection).
 # verbose	        Logical. If TRUE, progress messages and a progress bar are shown.
 #                   Default is FALSE.
+
 
 ############################# Example usage #############################
 library(RBBR)
