@@ -14,7 +14,6 @@ Malekpour, S.A., Pezeshk, H., Explainable artificial intelligence with Boolean r
 install.packages("RBBR")
 ```
 <br>
-<br>
 
 ## Prepare input files
 ### rbbr_scaling()
@@ -36,6 +35,7 @@ head(MAGIC_data)
 data_scaled <- rbbr_scaling(MAGIC_data)
 head(data_scaled)
 ```
+<br>
 
 ## Train RBBR 
 ### rbbr_train()
@@ -53,8 +53,6 @@ rbbr_train(
   num_cores = NA,
   verbose = FALSE
 )
-
-
 
 # Required input arguments
 # data	           The dataset with scaled features within the [0,1] interval.
@@ -127,6 +125,8 @@ head(predicted_label_probabilities)
 [1] 0.005587339 0.110986479 0.826692566 0.036342787 0.731197972 0.011742257
 ```
 
+<br>
+
 ## Making predictions with RBBR on new dataset
 ### rbbr_predictor()
 For utilizing the trained model to predict target values or labels on a new dataset, you can use the `rbbr_predictor()` function. In datasets with binary (0/1) target features, the rbbr_predictor() function produces predicted probabilities for target labels. However, when dealing with a continuous target variable, the rbbr_predictor() output can be regarded as the predicted target value.
@@ -155,6 +155,8 @@ rbbr_predictor(
 #                   Default is NA (automatic selection).
 # verbose	        Logical. If TRUE, progress messages are shown. Default is FALSE.
 
+
+### Example usage
 library(RBBR)
 
 # Load dataset
